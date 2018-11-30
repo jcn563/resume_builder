@@ -1,0 +1,299 @@
+#  File: resume.py
+#  Author: Jordon Nevins
+#  Description: an object oriented program that builds a resume
+#  Date Last Modified: 12/14/16
+ 
+import textwrap
+lineLength = 105
+ 
+#  Node data structure
+class Node():
+    def __init__(self,data):
+        self.data = data
+        self.next = None
+    def getNext(self):
+        return self.next
+    def getData(self):
+        return self.data
+    def setData(self, newData):
+        self.data = newData
+    def setNext(self, newNext):
+        self.next = newNext
+    def __str__(self):
+        return str(self.data)
+     
+#  Linked List data structure
+class LinkedList(Node):
+    def __init__(self):
+        self.head = None
+    def isEmpty(self):
+        return self.head == None
+    def add(self,data):
+        current = self.head
+        previous = None
+        while current != None:
+            previous = current
+            current = current.getNext()
+        temp = Node(data)
+        if previous == None:
+            temp.setNext(current)
+            self.head = temp
+        else:
+            previous.setNext(temp)
+    def getHead(self):
+        return self.head
+    def __str__(self):
+        string = ''
+        current = self.head
+        while current != None:
+            string += '\n' + str(current)
+            current = current.getNext()
+        return string
+ 
+#  header of the resume
+class Header():
+    def __init__(self,name,phoneNumber,email):
+        self.name = name
+        self.phoneNum = phoneNumber
+        self.email = email
+    def __str__(self):
+        string = '\n'
+        string += self.name + '\n' + self.email + '\n' + self.phoneNum + '\n'
+        return string
+ 
+#  summary section with bullets
+class Summary():
+    def __init__(self):
+        self.sentences = LinkedList()
+    def add(self,data):
+        self.sentences.add(data)
+    def __str__(self):
+        string = ''
+        i = 0
+        current = self.sentences.getHead()
+        prefix = '   -  '
+        wrapper = textwrap.TextWrapper(initial_indent=prefix,width=lineLength,subsequent_indent = ' '*len(prefix))
+        while current != None:
+            string += wrapper.fill(str(current)) + '\n'
+            current = current.getNext()  
+        return string
+ 
+#  education section 
+class Education():
+    def __init__(self):
+        self.university = ''
+        self.degree = ''
+        self.dateExpected = ''
+        self.specializations = LinkedList()
+        self.gpa = ''
+        self.relevantCourseWork = LinkedList()
+    def addUniversity(self,university):
+        self.university = university
+    def addDegree(self,degree):
+        self.degree = degree
+    def addDateExpected(self,dateExpected):
+        self.dateExpected = dateExpected
+    def addSpecializations(self,specialization):
+        self.specializations.add(specialization)
+    def addRelevantCourse(self,course):
+        self.relevantCourseWork.add(course)        
+    def __str__(self):
+        prefix1 = '   '
+        prefix2 = '   -  '
+        prefix3 = '     -  '
+        string = ''
+        wrapper1 = textwrap.TextWrapper(initial_indent=prefix1,width=lineLength,subsequent_indent = ' '*len(prefix1))
+        wrapper2 = textwrap.TextWrapper(initial_indent=prefix2,width=lineLength,subsequent_indent = ' '*len(prefix2))
+        wrapper3 = textwrap.TextWrapper(initial_indent=prefix3,width=lineLength,subsequent_indent = ' '*len(prefix3))
+        if self.university != '':
+            string += wrapper1.fill(str(self.university)) + '\n\n'
+        string += wrapper1.fill(str(self.degree)) + ' '*(lineLength-len(self.degree)-len(self.dateExpected) - len(prefix1)) + self.dateExpected + '\n'
+ 
+        current = self.specializations.getHead()
+        while current != None:
+            string += wrapper2.fill(str(current)) + '\n'
+            current = current.getNext()
+ 
+        current = self.relevantCourseWork.getHead()
+        if current != None:
+            string += wrapper2.fill('Relevant Coursework') + '\n'
+        while current != None:
+            string += wrapper3.fill(str(current)) + '\n'
+            current = current.getNext()        
+        return string
+ 
+#  technicaal skills section
+#  currently supported for languages, software and platforms
+#  and supported for a special projects section, if that data exists.. way to program future resume function building
+class ComputerSkills():
+    def __init__(self):
+        self.languages = LinkedList()
+        self.softwares = LinkedList() 
+        self.platforms = LinkedList()
+        self.specialProjects = LinkedList()
+    def addLanguage(self,language):
+        self.languages.add(language)
+    def addSoftware(self,software):
+        self.softwares.add(software)
+    def addPlatform(self,platform):
+        self.platforms.add(platform)
+    def addSpecialProjects(self,specialProject):
+        self.specialProjects.add(specialProject)
+    def __str__(self):
+        string = ''
+        prefix = '   -  '
+        prefix2 = 'Special Projects: '
+        wrapper = textwrap.TextWrapper(initial_indent=prefix,width=lineLength,subsequent_indent = ' '*len(prefix))
+        wrapper2 = textwrap.TextWrapper(initial_indent=' ',width=lineLength,subsequent_indent = ' '*len(prefix2))
+        currents = [self.languages.getHead(),self.softwares.getHead(),self.platforms.getHead()]
+        headers = ['Languages','Software','Platforms']
+        i = 0
+        for head in currents:
+            current = head
+            string += prefix + str(headers[i]) + ': '
+            while current != None:
+                if current.getNext() == None:
+                    string += str(current)
+                else:
+                    string += str(current) + ', '
+                current = current.getNext()
+            string += '\n'
+            i += 1
+        current = self.specialProjects.getHead()
+        if current != None:
+            string += wrapper.fill('Projects: ') 
+            while current != None:
+                string += wrapper2.fill(str(current))
+                current = current.getNext()
+            string += '\n'
+        return string
+ 
+#  experience section 
+class Jobs():
+    def __init__(self,jobTitle,timeFrame,employer):
+        self.jobTitle = jobTitle
+        self.jobTimeFrame = timeFrame
+        self.jobEmployer = employer
+        self.jobDuties = LinkedList()
+    def addDuty(self,duty):
+        self.jobDuties.add(duty)
+    def __str__(self):
+        wrapper1 = textwrap.TextWrapper(initial_indent='   ',width=lineLength,subsequent_indent = ' '*len('   ')) 
+        string = wrapper1.fill(str(self.jobTitle)) +' '*(lineLength-len(self.jobTitle)-
+                                                         len(self.jobTimeFrame) - len('   ')) + self.jobTimeFrame
+        string += '\n   ' + self.jobEmployer + '\n\n'
+        prefix = '   -  '
+        wrapper = textwrap.TextWrapper(initial_indent=prefix,width=lineLength,subsequent_indent=' '*len(prefix))
+        current = self.jobDuties.getHead()
+        while current != None:
+            if current.getNext() == None:
+                string += wrapper.fill(str(current)) +'\n'
+            else:
+                string += wrapper.fill(str(current)) + '\n\n'
+            current = current.getNext()
+        return string
+ 
+#  class specific to me
+#  activities and leadership was a common extracuricular 
+class ActivitiesAndLeadership():
+    def __init__(self,activity,dates):
+        self.activity = activity
+        self.timeFrame = dates 
+    def __str__(self):
+        prefix = '   -  '
+        wrapper = textwrap.TextWrapper(initial_indent=prefix,width=lineLength,subsequent_indent=' '*len(prefix))
+        string = wrapper.fill(str(self.activity)) + ' '*(lineLength-len(self.activity)-len(self.timeFrame)-len(prefix)) + self.timeFrame 
+        return string
+ 
+#  seperator funtion, creation of a new portion of the resume     
+def seperator(string):
+    print('-'*lineLength)
+    print(string)
+    print('-'*lineLength + '\n')
+ 
+#  function of my resume information
+def jordonsResumeInformation():
+    #  header information
+    header = Header('Jordon Nevins','512 589 2312','jordon.nevins@austin.utexas.edu')
+    print(header)
+ 
+    #  education information
+    seperator('EDUCATION')
+    edu1 = Education()
+    edu1.addUniversity('The University of Texas at Austin, Austin, TX')
+    edu1.addDegree('Bachelor of Science in Mathematics')
+    edu1.addDateExpected('May 2017')
+    edu1.addSpecializations('Mathematical Sciences, Specialization in Scientific Computation')
+    edu1.addRelevantCourse('Elements of Computing using Python')
+    edu1.addRelevantCourse('Advanced Calculus for Applications II')
+    edu1.addRelevantCourse('Scientific Computation in Numerical Analysis')
+    edu1.addRelevantCourse('Numerical Methods for Application')
+    edu2 = Education()
+    edu2.addDateExpected('December 2013')
+    edu2.addDegree('Bachelor of Arts in Mathematics')
+    edu2.addSpecializations('McCombs Business Foundations Certificate')
+    edu2.addRelevantCourse('Data Structures using Java')
+    edu2.addRelevantCourse('Applied Statistics and Intro to Mathematical Sciences')
+    edu2.addRelevantCourse('Intro to Actuarial Financial Math and Financial Math for Actuarial Applications')
+    print(edu1)
+    print(edu2)
+ 
+    #  skillz information
+    seperator('TECHNICAL SKILLS')
+    compSklz = ComputerSkills()
+    languages = ['MATLAB','Java','R','Python','C++']
+    compSklz.addLanguage(languages[0])
+    compSklz.addLanguage(languages[1])
+    compSklz.addLanguage(languages[2])
+    compSklz.addLanguage(languages[3])
+    compSklz.addLanguage(languages[4])
+    softwares = ['Microsoft Office Suite','AutoCAD','Microsoft Visio','Adobe Photoshop','FileMaker','Box']
+    compSklz.addSoftware(softwares[0])
+    compSklz.addSoftware(softwares[1])
+    compSklz.addSoftware(softwares[2])
+    compSklz.addSoftware(softwares[3])
+    compSklz.addSoftware(softwares[4])
+    compSklz.addSoftware(softwares[5])
+    platforms = ['Windows', 'Linux', 'Mac']
+    compSklz.addPlatform(platforms[0])
+    compSklz.addPlatform(platforms[1])
+    compSklz.addPlatform(platforms[2])
+    compSklz.addSpecialProjects('This OOP, resume.py, can be found here: dropbox.com/s/x2hu5e74epq4lc8/resume.py?dl=0')
+    print(compSklz)
+ 
+    #  professional experience information
+    seperator('PROFESSIONAL EXPERIENCE')
+    job1 = Jobs('Facilities Supervisor - Project Supervisor','06/2014 - Present','College of Natural Sciences, The University of Texas \
+at Austin, Austin, TX')
+    job1.addDuty('Supervise, maintain, and coordinate day to day infrastructure operations within the College of Natural Science buildings, primarily \
+dealing with T.S. Painter Hall and Biological Laboratories')
+    job1.addDuty('Assist faculty, researchers, staff, students, contractors and other guests with various questions, tasks, duties and \
+projects as they are assigned or requested')
+    job1.addDuty("Lead on multiple department related renovation and infrastructure projects ranging from a minimum budget of $100 to a maximum of $25,000")
+    job1.addDuty("Serve as the project supervisor on the college's Locknetics Transition Program, aimed at training and providing new users \
+their own access to the Locknetics System")
+    job1.addDuty('Primary contact for T.S. Painter Hall and Biological Laboratories on infrastructure projects managed by Project Management \
+& Construction Services including the major renovation of three general purpose lecture halls and the construction of a new electric vault')
+    job1.addDuty('Serve on the planning and review committees for a handful of college related infrastructure projects managed by Project Management \
+& Construction Services')
+    job1.addDuty('Construction coordination between contractors and building occupants for intensive building fit outs including outages, \
+shutdowns and the involved logistics, always ensuring the integrity of research')
+    job2 = Jobs('Building Manager Assistant','05/2011 - 06/2014','College of Natural Sciences, The University of Texas at Austin, Austin, TX')
+    job2.addDuty('Assisted building managers with various handy work throughout the College of Natural Sciences')
+    job2.addDuty('Completed tasks independently or with a team')
+    job2.addDuty('Honed skills in demolition, dry wall, finishing, painting, and the moving and mounting of various equipment')
+    print(job1)
+    print(job2)
+ 
+    #  activities and leadership information
+    seperator('ACTIVITIES AND LEADERSHIP')
+    activity1 = ActivitiesAndLeadership("Scout Team, University of Texas Women's Basketball Team",'2011-13')
+    activity2 = ActivitiesAndLeadership('University of Texas Rugby Football Club, 2011-12 Southwest Conf. Champions','2009-12')
+    activity3 = ActivitiesAndLeadership('Teaching Assistant, University of Texas: Swimming II, Triathlon Training','2011-12')
+    print(activity1)
+    print(activity2)
+    print(activity3)
+     
+def main():
+    jordonsResumeInformation()
+main()
